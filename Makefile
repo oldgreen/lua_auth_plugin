@@ -1,5 +1,5 @@
-CFLAGS = -std=gnu99 -fPIC -I../include/ -L../lib/x86_64-linux-gnu/ -Wall -Wextra -O2
-LIBS = -llua52 -ldl -lmosquitto -lssl -lcares
+CFLAGS = -std=gnu99 -fPIC -I/usr/include/lua5.3 -Wall -Wextra -O2
+LIBS = -llua5.3 -lmosquitto
 DESTDIR = /usr/local
 
 all : lua_auth_plugin.so
