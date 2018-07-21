@@ -80,7 +80,7 @@ int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_auth_opt *auth
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts unused, int auth_opt_count unused)
+int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "plugin_cleanup");
@@ -97,7 +97,7 @@ int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_auth_opt *au
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_security_init(void *user_data, struct mosquitto_auth_opt *auth_opts unused, int auth_opt_count unused, bool reload)
+int mosquitto_auth_security_init(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "security_init");
@@ -113,7 +113,7 @@ int mosquitto_auth_security_init(void *user_data, struct mosquitto_auth_opt *aut
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts unused, int auth_opt_count unused, bool reload)
+int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "security_cleanup");
