@@ -164,7 +164,7 @@ int mosquitto_auth_unpwd_check(void *user_data, const char *username, const char
 
     int result = lua_toboolean(lua, -1);
     lua_pop(lua,1);
-    return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
+    return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_AUTH;
 }
 
 int mosquitto_auth_psk_key_get(void *user_data unused, const char *hint unused, const char *identity unused, char *key unused, int max_key_len unused)
