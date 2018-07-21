@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <mosquitto.h>
 #include <mosquitto_plugin.h>
+#include <mosquitto_broker.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -20,7 +21,7 @@ int topic_matches_sub(lua_State *lua)
     return 1;
 }
 
-void push_auth_opts(lua_State *lua, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
+void push_auth_opts(lua_State *lua, struct mosquitto_opt *auth_opts, int auth_opt_count)
 {
     lua_newtable(lua);
 
@@ -35,7 +36,7 @@ int mosquitto_auth_plugin_version(void)
     return MOSQ_AUTH_PLUGIN_VERSION;
 }
 
-int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
+int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_opt *auth_opts, int auth_opt_count)
 {
     char *module_name = NULL;
 
@@ -65,6 +66,8 @@ int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_auth_opt *auth
     lua_setglobal(lua, "MOSQ_ACL_READ");
     lua_pushinteger(lua, MOSQ_ACL_WRITE);
     lua_setglobal(lua, "MOSQ_ACL_WRITE");
+    lua_pushinteger(lua, MOSQ_ACL_SUBSCRIBE);
+    lua_setglobal(lua, "MOSQ_ACL_SUBSCRIBE");
 
     lua_getglobal(lua, "plugin_init");
     push_auth_opts(lua, auth_opts, auth_opt_count);
@@ -80,7 +83,7 @@ int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_auth_opt *auth
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
+int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_opt *auth_opts, int auth_opt_count)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "plugin_cleanup");
@@ -97,7 +100,7 @@ int mosquitto_auth_plugin_cleanup(void *user_data, struct mosquitto_auth_opt *au
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_security_init(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
+int mosquitto_auth_security_init(void *user_data, struct mosquitto_opt *auth_opts, int auth_opt_count, bool reload)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "security_init");
@@ -113,7 +116,7 @@ int mosquitto_auth_security_init(void *user_data, struct mosquitto_auth_opt *aut
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count, bool reload)
+int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_opt *auth_opts, int auth_opt_count, bool reload)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "security_cleanup");
@@ -129,13 +132,16 @@ int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_auth_opt *
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_acl_check(void *user_data, const char *clientid, const char *username, const char *topic, int access)
+int mosquitto_auth_acl_check(void *user_data, int access, const struct mosquitto *client, const struct mosquitto_acl_msg *msg)
 {
+    const char *clientid = mosquitto_client_id(client);
+    const char *username = mosquitto_client_username(client);
+
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "acl_check");
     lua_pushstring(lua, clientid);
     lua_pushstring(lua, username);
-    lua_pushstring(lua, topic);
+    lua_pushstring(lua, msg->topic);
     lua_pushinteger(lua, access);
     if (lua_pcall(lua, 4, 1, 0) != 0) {
         printf("acl_check call failed\n");
@@ -149,7 +155,7 @@ int mosquitto_auth_acl_check(void *user_data, const char *clientid, const char *
     return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
 }
 
-int mosquitto_auth_unpwd_check(void *user_data, const char *username, const char *password)
+int mosquitto_auth_unpwd_check(void *user_data, const struct mosquitto *client unused, const char *username, const char *password)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "unpwd_check");
@@ -167,7 +173,7 @@ int mosquitto_auth_unpwd_check(void *user_data, const char *username, const char
     return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_AUTH;
 }
 
-int mosquitto_auth_psk_key_get(void *user_data unused, const char *hint unused, const char *identity unused, char *key unused, int max_key_len unused)
+int mosquitto_auth_psk_key_get(void *user_data unused, const struct mosquitto *client unused, const char *hint unused, const char *identity unused, char *key unused, int max_key_len unused)
 {
     return MOSQ_ERR_AUTH;
 }

@@ -39,9 +39,10 @@ Please prepare the following functions in the Lua file.
   when reloading the configuration.  When reloading, `reload` value is
   `true`.
 - `acl_check(clientid, username, topic, access)`: Called when the broker
-  checks access to the topic.  `access` may be `MOSQ_ACL_READ` (when a
-  message is about to be sent to a client) or `MOSQ_ACL_WRITE` (when a
-  message has been received from a client).
+  checks access to the topic.  `access` may be one of `MOSQ_ACL_SUBSCRIBE`
+  (when a client is asking to subscribe to a topic string), `MOSQ_ACL_READ`
+  (when a message is about to be sent to a client) and `MOSQ_ACL_WRITE` (when
+  a message has been received from a client).
 - `unpwd_check(username, password)`: Called when the broker checks username/password.
 
 # C Function
