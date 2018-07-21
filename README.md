@@ -3,8 +3,6 @@
 An authentication plug-in for [Mosquitto](https://mosquitto.org/), where the authentication process is
 controlled by [Lua](https://www.lua.org/) code.
 
-Basic composition and ideas are based on [mosquitto_pyauth](https://github.com/mbachry/mosquitto_pyauth).
-
 # Install
 Installation of Mosquitto and Lua is required in advance.
 
@@ -50,3 +48,8 @@ Please prepare the following functions in the Lua file.
 The following functions are C functions available from Lua.
 
 - `topic_matches_sub(sub, topic)`: This function determines whether `topic` matches `sub`.
+
+# Credits
+Basic composition and ideas are based on [mosquitto_pyauth](https://github.com/mbachry/mosquitto_pyauth).
+
+The code is forked from [DenkiYagi/lua_auth_plugin](https://github.com/DenkiYagi/lua_auth_plugin) repository.
