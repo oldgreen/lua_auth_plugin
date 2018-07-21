@@ -37,7 +37,7 @@ int mosquitto_auth_plugin_version(void)
 
 int mosquitto_auth_plugin_init(void **user_data, struct mosquitto_auth_opt *auth_opts, int auth_opt_count)
 {
-    char *module_name;
+    char *module_name = NULL;
 
     for (int i = 0; i < auth_opt_count; i++) {
         if (!strcmp(auth_opts[i].key, "auth_file")) {
