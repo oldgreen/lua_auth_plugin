@@ -1,13 +1,15 @@
 # lua_auth_plugin
 
-Mosquittoの認証処理をLuaで書くためのプラグインです。
+An authentication plug-in for [Mosquitto](https://mosquitto.org/), where the authentication process is
+controlled by [Lua](https://www.lua.org/) code.
 
-基本的な構成、アイデアは[mosquitto_pyauth](https://github.com/mbachry/mosquitto_pyauth)を参考にしています。
+Basic composition and ideas are based on [mosquitto_pyauth](https://github.com/mbachry/mosquitto_pyauth).
 
 # Install
-事前にMosquitto、Luaのインストールが必要です。
+Installation of Mosquitto and Lua is required in advance.
 
-なお、Makefileのリンクするライブラリパス、インストール先は各々の環境に応じて適宜修正してください。
+Please modify the library path in Makefile and the installation destination as appropriate according to each environment.
+
 ```
 cd lua_auth_plugin
 make
@@ -15,24 +17,36 @@ make install
 ```
 
 # Configuration
-`mosquitto.conf`に以下の設定を追加してください。
-
-また、`auth_opt_*`を独自に追加することで、自作プラグイン中で参照可能な設定を追加することができます。
+Please add the following setting to `mosquitto.conf`.
 
 ```
 auth_plugin /path/to/lua_auth_plugin.so
 auth_opt_auth_file /path/to/your_auth_file.lua
 ```
 
-# Lua function
-作成するLuaファイルには以下の関数を用意してください。
-- `plugin_init(opts)`：プラグインの初期化時に呼び出されます。`opts`は`mosquitto.conf`の`auth_opts_*`の設定名をキーとしたテーブルです。
-- `plugin_cleanup(opts)`：プラグインの終了時に呼び出されます。
-- `security_init(opts, reload)`：プラグインの初期化時、設定のリロード時に呼ばれます。リロード時は、`reload`が`true`で呼ばれます。
-- `security_cleanup(opts, reload)`：プラグインの終了時、設定のリロード時に呼ばれます。
-- `acl_check(clientid, username, topic, access)`：ブローカーがトピックへのアクセスをチェックする際に呼ばれます。`access`はSubscribeの場合、`MOSQ_ACL_READ`が、Publishの場合、`MOSQ_ACL_WRITE`が設定されます。
-- `unpwd_check(username, password)`：ブローカーがusername/passwordをチェックする際に呼ばれます。
+By adding extra `auth_opt_*` directives yourself, you can add configurable settings
+to your plugin.
+
+# Lua functions
+Please prepare the following functions in the Lua file.
+
+- `plugin_init(opts)`: Called when the plugin is initialized.  opts is a
+  table keyed with the names of `auth_opts_*` settings from
+  `mosquitto.conf`.
+- `plugin_cleanup(opts)`: Called when the plugin terminates.
+- `security_init(opts, reload)`: Called when initializing the plugin and
+  when reloading the configuration.  When reloading, `reload` value is
+  `true`.
+- `security_cleanup(opts, reload)`: Called when the plug-in terminates and
+  when reloading the configuration.  When reloading, `reload` value is
+  `true`.
+- `acl_check(clientid, username, topic, access)`: Called when the broker
+  checks access to the topic.  `access` may be `MOSQ_ACL_READ` (when a
+  message is about to be sent to a client) or `MOSQ_ACL_WRITE` (when a
+  message has been received from a client).
+- `unpwd_check(username, password)`: Called when the broker checks username/password.
 
 # C Function
-以下の関数は、Luaから使用できるCの関数です。
-- `topic_matches_sub(sub, topic)`：`topic`が`sub`に一致するかどうかを判定する関数です。
+The following functions are C functions available from Lua.
+
+- `topic_matches_sub(sub, topic)`: This function determines whether `topic` matches `sub`.
