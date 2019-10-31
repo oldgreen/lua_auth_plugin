@@ -132,7 +132,7 @@ int mosquitto_auth_security_cleanup(void *user_data, struct mosquitto_opt *auth_
     return MOSQ_ERR_SUCCESS;
 }
 
-int mosquitto_auth_acl_check(void *user_data, int access, const struct mosquitto *client, const struct mosquitto_acl_msg *msg)
+int mosquitto_auth_acl_check(void *user_data, int access, struct mosquitto *client, const struct mosquitto_acl_msg *msg)
 {
     const char *clientid = mosquitto_client_id(client);
     const char *username = mosquitto_client_username(client);
@@ -155,7 +155,7 @@ int mosquitto_auth_acl_check(void *user_data, int access, const struct mosquitto
     return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_ACL_DENIED;
 }
 
-int mosquitto_auth_unpwd_check(void *user_data, const struct mosquitto *client unused, const char *username, const char *password)
+int mosquitto_auth_unpwd_check(void *user_data, struct mosquitto *client unused, const char *username, const char *password)
 {
     lua_State *lua = (lua_State *)user_data;
     lua_getglobal(lua, "unpwd_check");
@@ -173,7 +173,7 @@ int mosquitto_auth_unpwd_check(void *user_data, const struct mosquitto *client u
     return result ? MOSQ_ERR_SUCCESS : MOSQ_ERR_AUTH;
 }
 
-int mosquitto_auth_psk_key_get(void *user_data unused, const struct mosquitto *client unused, const char *hint unused, const char *identity unused, char *key unused, int max_key_len unused)
+int mosquitto_auth_psk_key_get(void *user_data unused, struct mosquitto *client unused, const char *hint unused, const char *identity unused, char *key unused, int max_key_len unused)
 {
     return MOSQ_ERR_AUTH;
 }
